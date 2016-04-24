@@ -33,8 +33,8 @@
 
 ## Document
 * [__Requests__](http://docs.python-requests.org/en/master/)
-* [__Auth-api__]()
-* [__PCS-api__]()
+* [__Auth-api__](auth.py)
+* [__PCS-api__](pcs.py)
   - :warning: PCS接口只移植了下载，查询，列出全部文件的功能
 
 ## License
