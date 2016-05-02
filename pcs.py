@@ -18,7 +18,6 @@ import random
 
 PAN_URL = 'http://pan.baidu.com/'
 PAN_API_URL = PAN_URL + 'api/'
-timestamp = str(int(time.time() * 1000))
 latency = str(random.random())[:7]
 CONTENT_FORM = 'application/x-www-form-urlencoded'
 CONTENT_FORM_UTF8 = CONTENT_FORM + '; charset=UTF-8'
@@ -29,8 +28,29 @@ PCS_URL_D = 'http://d.pcs.baidu.com/rest/2.0/pcs/'
 ## HTTP 请求时的一些常量
 ACCEPT_HTML = 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'
 
-
 RAPIDUPLOAD_THRESHOLD = 256 * 1024  # 256K
+
+USER_AGENT = 'Mozilla/5.0 (X11; Linux x86_64; rv:31.0) Gecko/20100101 Firefox/31.0 Iceweasel/31.2.0'
+PAN_REFERER = 'http://pan.baidu.com/disk/home'
+ACCEPT_JSON = 'application/json, text/javascript, */*; q=0.8'
+
+
+#相同的headers，不需重复加入
+default_headers = {
+    'User-agent': USER_AGENT,
+    'Referer': PAN_REFERER,
+    #'x-requested-with': 'XMLHttpRequest',
+    'Accept': ACCEPT_JSON,
+    'Accept-language': 'zh-cn, zh;q=0.5',
+    'Accept-encoding': 'gzip, deflate',
+    'Pragma': 'no-cache',
+    'Cache-control': 'no-cache',
+}
+
+
+def timestamp():
+    '''返回当前的时间标记, 以毫秒为单位'''
+    return str(int(time.time() * 1000))
 
 
 def get_user_uk(cookie, tokens):
@@ -48,7 +68,7 @@ def get_user_uk(cookie, tokens):
 
 
 
-def get_user_info(tokens, uk):
+def get_user_info(cookie, tokens, uk):
     '''获取用户的部分信息.
 
     比如头像, 用户名, 自我介绍, 粉丝数等.
@@ -59,9 +79,10 @@ def get_user_info(tokens, uk):
         'pcloud/user/getinfo?channel=chunlei&clienttype=0&web=1',
         '&bdstoken=', tokens['bdstoken'],
         '&query_uk=', uk,
-        '&t=', timestamp,
+        '&t=', timestamp(),
     ])
-    req = requests.get(url)
+    headers_merged = default_headers.copy()
+    req = requests.get(url, headers=headers_merged, cookies=cookie)
     if req:
         info = json.loads(req.text)
         if info and info['errno'] == 0:
@@ -84,22 +105,27 @@ def list_dir_all(cookie, tokens, path):
         page = page + 1
 
 
-def list_dir(cookie, tokens, path, page=1, num=40):
-    '''得到一个目录中的所有文件的信息(最多100条记录).'''
+def list_dir(cookie, tokens, path, page=1, num=20):
+    '''得到一个目录中的所有文件的信息(最多20条记录).'''
     url = ''.join([
         PAN_API_URL,
         'list?channel=chunlei&clienttype=0&web=1',
         '&num=', str(num),
-        '&t=', timestamp,
+        '&t=', timestamp(),
         '&page=', str(page),
         '&dir=', path,
         '&t=', latency,
         '&order=time&desc=1',
-        '&_=', timestamp,
+        '&_=', timestamp(),
         '&bdstoken=', tokens['bdstoken'],
     ])
-    header = {'Content-type': CONTENT_FORM_UTF8}
-    req = requests.get(url, headers=header, cookies=cookie)
+    headers = {'Content-type': CONTENT_FORM_UTF8}
+    headers_merged = default_headers.copy()
+    #merge the headers
+    for key in headers.keys():
+        headers_merged[key] = headers[key]
+
+    req = requests.get(url, headers=headers_merged, cookies=cookie)
     if req:
         content = req.text
         return json.loads(content)
@@ -125,10 +151,10 @@ def get_category(cookie, tokens, category, page=1):
         'categorylist?channel=chunlei&clienttype=0&web=1',
         '&category=', str(category),
         '&pri=-1&num=100',
-        '&t=', timestamp,
+        '&t=', timestamp(),
         '&page=', str(page),
         '&order=time&desc=1',
-        '&_=', timestamp,
+        '&_=', timestamp(),
         '&bdstoken=', cookie['STOKEN'],
     ])
     req = requests.get(url, cookies=cookie)
@@ -154,9 +180,13 @@ def get_download_link(cookie, tokens, path):
         return None
     dlink = metas['info'][0]['dlink']
     url = '{0}&cflg={1}'.format(dlink, cookie['cflag'])
-    req = requests.get(url, headers={
-        'Accept': ACCEPT_HTML,
-    }, cookies=cookie, allow_redirects=False)
+    headers_merged = default_headers.copy()
+    headers = {'Accept': ACCEPT_HTML}
+    #merge the headers
+    for key in headers.keys():
+        headers_merged[key] = headers[key]
+
+    req = requests.get(url, headers=headers_merged, cookies=cookie, allow_redirects=False)
     if not req:
         return url
     else:
@@ -195,7 +225,8 @@ def get_streaming_playlist(cookie, path, video_type='M3U8_AUTO_480'):
         '&type=', video_type,
         '&app_id=250528',
     ])
-    req = requests.get(url, cookies=cookie)
+    headers_merged = default_headers.copy()
+    req = requests.get(url, headers=headers_merged, cookies=cookie)
     if req:
         return req.text
     else:
@@ -226,9 +257,13 @@ def get_metas(cookie, tokens, filelist, dlink=True):
         data = {'dlink':'0',
                 'target':json.dumps(filelist),
                 }
-    req = requests.post(url, headers={
-        'Content-type': CONTENT_FORM,
-        }, cookies=cookie, data=data)
+    headers_merged = default_headers.copy()
+    headers = {'Content-type': CONTENT_FORM}
+    #merge the headers
+    for key in headers.keys():
+        headers_merged[key] = headers[key]
+
+    req = requests.post(url, headers=headers_merged, cookies=cookie, data=data)
     if req:
         content = req.text
         return json.loads(content)
@@ -251,7 +286,8 @@ def search(cookie, tokens, key, path='/'):
         '&timeStamp=', latency,
         '&bdstoken=', tokens['bdstoken'],
     ])
-    req = requests.get(url, cookies=cookie)
+    headers_merged = default_headers.copy()
+    req = requests.get(url, headers=headers_merged, cookies=cookie)
     if req:
         content = req.text
         return json.loads(content)
