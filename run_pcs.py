@@ -49,6 +49,15 @@ if os.path.isfile(auth_data_path):
                 downlink=pcs.get_download_link(cookie,tokens,path)
                 print(downlink)
             else:
-                print('Nothing to do.')
+                qut='查找文件吗？'
+                if yesno(qut):
+                    key = raw_input('请输入需要查找文件的名称[例如:1.mp4]:')
+                    s = pcs.search(cookie,tokens,key)
+                    if s['list']:
+                        print(s['list'])
+                    else:
+                        print('找不到文件')
+                else:
+                    print('Nothing to do.')
 else:
     print('Please run the run.py first')
