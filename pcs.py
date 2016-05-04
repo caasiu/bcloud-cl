@@ -28,19 +28,18 @@ PCS_URL_D = 'http://d.pcs.baidu.com/rest/2.0/pcs/'
 ## HTTP 请求时的一些常量
 ACCEPT_HTML = 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'
 
-RAPIDUPLOAD_THRESHOLD = 256 * 1024  # 256K
-
-USER_AGENT = 'Mozilla/5.0 (X11; Linux x86_64; rv:31.0) Gecko/20100101 Firefox/31.0 Iceweasel/31.2.0'
+USER_AGENT = 'Mozilla/5.0 (X11; Linux x86_64; rv:46.0) Gecko/20100101 Firefox/46.0'
 PAN_REFERER = 'http://pan.baidu.com/disk/home'
 ACCEPT_JSON = 'application/json, text/javascript, */*; q=0.8'
+
+RAPIDUPLOAD_THRESHOLD = 256 * 1024  # 256K
 
 
 #相同的headers，不需重复加入
 default_headers = {
-    'User-agent': USER_AGENT,
-    'Referer': PAN_REFERER,
-    #'x-requested-with': 'XMLHttpRequest',
-    'Accept': ACCEPT_JSON,
+    'User-agent': 'Mozilla/5.0 (X11; Linux x86_64; rv:46.0) Gecko/20100101 Firefox/46.0',
+    'Referer': 'http://pan.baidu.com/disk/home',
+    'Accept': 'application/json, text/javascript, */*; q=0.8',
     'Accept-language': 'zh-cn, zh;q=0.5',
     'Accept-encoding': 'gzip, deflate',
     'Pragma': 'no-cache',
