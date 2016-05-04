@@ -67,7 +67,7 @@ def get_user_uk(cookie, tokens):
 
 
 
-def get_user_info(cookie, tokens, uk):
+def get_user_info(tokens, uk):
     '''获取用户的部分信息.
 
     比如头像, 用户名, 自我介绍, 粉丝数等.
@@ -81,7 +81,7 @@ def get_user_info(cookie, tokens, uk):
         '&t=', timestamp(),
     ])
     headers_merged = default_headers.copy()
-    req = requests.get(url, headers=headers_merged, cookies=cookie)
+    req = requests.get(url, headers=headers_merged)
     if req:
         info = json.loads(req.text)
         if info and info['errno'] == 0:
