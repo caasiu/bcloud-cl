@@ -104,8 +104,9 @@ def list_dir_all(cookie, tokens, path):
         page = page + 1
 
 
-def list_dir(cookie, tokens, path, page=1, num=20):
-    '''得到一个目录中的所有文件的信息(最多20条记录).'''
+def list_dir(cookie, tokens, path, page=1, num=100):
+    '''得到一个目录中的所有文件的信息(最多100条记录).'''
+    '''100条记录是网页规定无修改'''
     url = ''.join([
         PAN_API_URL,
         'list?channel=chunlei&clienttype=0&web=1',
