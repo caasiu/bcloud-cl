@@ -206,7 +206,7 @@ def stream_download(cookie, tokens, path):
     ])
     req = requests.get(url, cookies=cookie, allow_redirects=False)
     if req:
-        return req
+        return req.headers['location']
     else:
         return None
 
