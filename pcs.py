@@ -18,7 +18,7 @@ import random
 
 PAN_URL = 'http://pan.baidu.com/'
 PAN_API_URL = PAN_URL + 'api/'
-latency = str(random.random())[:7]
+latency = str(random.random())
 CONTENT_FORM = 'application/x-www-form-urlencoded'
 CONTENT_FORM_UTF8 = CONTENT_FORM + '; charset=UTF-8'
 # 一般的服务器名
@@ -43,7 +43,7 @@ default_headers = {
     'Accept-language': 'zh-cn, zh;q=0.5',
     'Accept-encoding': 'gzip, deflate',
     'Pragma': 'no-cache',
-    'Cache-control': 'no-cache',
+    'Cache-Control': 'max-age=0',
 }
 
 
@@ -55,7 +55,8 @@ def timestamp():
 def get_user_uk(cookie, tokens):
     '获取用户的uk'
     url = 'http://yun.baidu.com'
-    req = requests.get(url, cookies=cookie)
+    headers_merged = default_headers.copy()
+    req = requests.get(url, cookies=cookie, headers=headers_merged)
     if req:
         content = req.text
         match = re.findall('/share/home\?uk=(\d+)" target=', content)
@@ -73,15 +74,19 @@ def get_user_info(tokens, uk):
     比如头像, 用户名, 自我介绍, 粉丝数等.
     这个接口可用于查询任何用户的信息, 只要知道他/她的uk.
     '''
-    url = ''.join([
-        PAN_URL,
-        'pcloud/user/getinfo?channel=chunlei&clienttype=0&web=1',
-        '&bdstoken=', tokens['bdstoken'],
-        '&query_uk=', uk,
-        '&t=', timestamp(),
-    ])
+    url = 'http://yun.baidu.com/pcloud/user/getinfo'
+    user_params = {
+            'channel': 'chunlei',
+            'clienttype': '0',
+            'web': '1',
+            'bdstoken': tokens['bdstoken'],
+            'query_uk': uk,
+            't': timestamp(),
+            }
     headers_merged = default_headers.copy()
-    req = requests.get(url, headers=headers_merged)
+    headers_merged['Referer'] = 'http://yun.baidu.com/share/home?uk=' + uk
+    headers_merged['Host'] = 'yun.baidu.com'
+    req = requests.get(url, headers=headers_merged, params=user_params)
     if req:
         info = json.loads(req.text)
         if info and info['errno'] == 0:
@@ -107,25 +112,28 @@ def list_dir_all(cookie, tokens, path):
 def list_dir(cookie, tokens, path, page=1, num=100):
     '''得到一个目录中的所有文件的信息(最多100条记录).'''
     '''100条记录是网页规定无修改'''
-    url = ''.join([
-        PAN_API_URL,
-        'list?channel=chunlei&clienttype=0&web=1',
-        '&num=', str(num),
-        '&t=', timestamp(),
-        '&page=', str(page),
-        '&dir=', path,
-        '&t=', latency,
-        '&order=time&desc=1',
-        '&_=', timestamp(),
-        '&bdstoken=', tokens['bdstoken'],
-    ])
+    url = 'http://pan.baidu.com/api/list' 
+    user_params = {
+            'order': 'time',
+            'desc': '1',
+            'showempty': '0',
+            'web': '1',
+            'page': str(page),
+            'num': str(num),
+            'dir': path,
+            't': str(random.random()),
+            'bdstoken': tokens['bdstoken'],
+            'channel': 'chunlei',
+            'app_id': '250528',
+            'clienttype': '0',
+            }
     headers = {'Content-type': CONTENT_FORM_UTF8}
     headers_merged = default_headers.copy()
     #merge the headers
     for key in headers.keys():
         headers_merged[key] = headers[key]
 
-    req = requests.get(url, headers=headers_merged, cookies=cookie)
+    req = requests.get(url, headers=headers_merged, cookies=cookie, params=user_params)
     if req:
         content = req.text
         return json.loads(content)

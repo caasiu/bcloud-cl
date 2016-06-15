@@ -56,8 +56,8 @@ elif err_no == 257:
     if len(verifycode) == 4:
         err_no,query = auth.post_login(cookie,tokens,username,password_enc,rsakey,verifycode,codeString)
         if err_no == 0:
-            auth_cookie = query
-            bdstoken = auth.get_bdstoken(auth_cookie)
+            temp_cookie = query
+            auth_cookie,bdstoken = auth.get_bdstoken(temp_cookie)
             tokens['bdstoken'] = bdstoken
             user_dir = os.path.join(os.path.abspath('.'), username)
             if not os.path.isdir(user_dir):

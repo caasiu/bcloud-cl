@@ -292,17 +292,20 @@ def parse_bdstoken(content):
 
 
 #get baidu accout token
-def get_bdstoken(auth_cookie):
+def get_bdstoken(temp_cookie):
     '''从/disk/home页面获取bdstoken等token信息
     这些token对于之后的请求非常重要.
     '''
     url = PAN_REFERER
     headers_merged = default_headers.copy()
 
-    req = requests.get(url, headers=headers_merged, cookies=auth_cookie, timeout=50)
+    req = requests.get(url, headers=headers_merged, cookies=temp_cookie, timeout=50)
     #将返回的网页用 utf-8 解压
     req.encoding = 'utf-8'
     if req:
-        return parse_bdstoken(req.text)
+        _cookie = req.headers['Set-Cookie']
+        key = ['STOKEN','SCRC','PANPSC']
+        auth_cookie = add_cookie(temp_cookie, _cookie, key)
+        return (auth_cookie, parse_bdstoken(req.text))
     else:
         return None
