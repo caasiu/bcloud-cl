@@ -218,7 +218,7 @@ def stream_download(cookie, tokens, path):
     for key in headers.keys():
         headers_merged[key] = headers[key]
 
-    req = requests.get(url, headers=headers_merged, cookies=cookie, allow_redirects=True)
+    req = requests.get(url, headers=headers_merged, cookies=cookie, allow_redirects=False)
     if req:
         return req.headers['location']
     else:
