@@ -46,7 +46,7 @@ if os.path.isfile(auth_data_path):
             qut='下载文件吗?'
             if yesno(qut):
                 path=raw_input('请输入文件绝对路径[例如:/我的资源/1.mp4]:')
-                downlink=pcs.get_download_link(cookie,tokens,path)
+                downlink=pcs.stream_download(cookie,tokens,path)
                 print(downlink)
             else:
                 qut='查找文件吗？'
@@ -58,6 +58,15 @@ if os.path.isfile(auth_data_path):
                     else:
                         print('找不到文件')
                 else:
-                    print('Nothing to do.')
+                    qut='获取M3U8文件吗？'
+                    if yesno(qut):
+                        path = raw_input('请输入文件的绝对路径：')
+                        res = pcs.get_streaming_playlist(cookie, path)
+                        if res:
+                            with open('file.m3u8', 'w') as f:
+                                f.write(res)
+                            print('m3u8文件创建成功')
+                    else:
+                        print('Nothing to do.')
 else:
     print('Please run the run.py first')

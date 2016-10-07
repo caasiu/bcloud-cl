@@ -212,7 +212,13 @@ def stream_download(cookie, tokens, path):
         '&path=', path,
         '&app_id=250528',
     ])
-    req = requests.get(url, cookies=cookie, allow_redirects=False)
+    headers_merged = default_headers.copy()
+    headers = {'Accept': ACCEPT_HTML}
+    #merge the headers
+    for key in headers.keys():
+        headers_merged[key] = headers[key]
+
+    req = requests.get(url, headers=headers_merged, cookies=cookie, allow_redirects=True)
     if req:
         return req.headers['location']
     else:

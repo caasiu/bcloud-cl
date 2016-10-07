@@ -52,8 +52,13 @@ elif err_no == 257:
     vcodetype = query['vcodetype']
     codeString = query['codeString']
     auth.get_signin_vcode(cookie, codeString)
+    while True:
+        ans = raw_input('refresh vcode? [y/N]: ')
+        if ans == 'N' or ans == 'n':
+            break
+        codeString = auth.refresh_vcode(cookie,tokens,vcodetype)
     verifycode = raw_input('input verifycode here:')
-    if len(verifycode) == 4:
+    if verifycode:
         err_no,query = auth.post_login(cookie,tokens,username,password_enc,rsakey,verifycode,codeString)
         if err_no == 0:
             temp_cookie = query

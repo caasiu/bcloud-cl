@@ -274,6 +274,36 @@ def get_signin_vcode(cookie, codeString):
         return None
 
 
+def get_refresh_codeString(cookie, tokens, vcodetype):
+    url=''.join([
+        PASSPORT_BASE,
+        'v2/?reggetcodestr',
+        '&token=', tokens['token'],
+        '&tpl=pp&apiver=v3',
+        '&tt=', timestamp,
+        '&fr=ligin',
+        '&vcodetype=', vcodetype,
+        ])
+    headers={'Referer': REFERER}
+    headers_merged = default_headers.copy()
+    #merge the headers
+    for key in headers.keys():
+        headers_merged[key] = headers[key]
+
+    req=requests.get(url, headers=headers_merged, cookies=cookie, timeout=50)
+    if req:
+        req.encoding = 'gbk'
+        return json.loads(req.text)
+    return None
+
+
+def refresh_vcode(cookie, tokens, vcodetype):
+    info = get_refresh_codeString(cookie, tokens, vcodetype)
+    codeString = info['data']['verifyStr']
+    get_signin_vcode(cookie, codeString)
+    return codeString
+
+
 def parse_bdstoken(content):
     '''从页面中解析出bdstoken等信息.
 
