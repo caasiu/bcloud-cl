@@ -31,9 +31,10 @@ if os.path.isfile(auth_data_path):
     tokens = data[1]
     qut='显示用户的信息?'
     if yesno(qut):
-        uk=pcs.get_user_uk(cookie,tokens)
-        info= pcs.get_user_info(tokens,uk)
-        print(info)
+        #uk=pcs.get_user_uk(cookie,tokens)
+        #info= pcs.get_user_info(tokens,uk)
+        #print(info)
+        pcs.get_quota(cookie,tokens)
 
     else:
         qut='显示网盘目录的文件信息吗?'

@@ -80,5 +80,5 @@ elif err_no == 257:
 elif err_no == -1:
     print('Fail to login unknow error')
 else:
-    print('err_no:' + err_no)
+    print(err_no)
     print('open the error file to solve the issue')

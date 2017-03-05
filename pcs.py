@@ -52,6 +52,20 @@ def timestamp():
     return str(int(time.time() * 1000))
 
 
+def get_quota(cookie, tokens):
+    url = 'http://yun.baidu.com/api/quota'
+    headers_merged = default_headers.copy()
+    params = {
+        "bdstoken": tokens['bdstoken'],
+    }
+    req = requests.get(url, cookies=cookie, headers=headers_merged, params=params, verify=False)
+    if req:
+        print(req.json())
+        quota = req.json()
+        if quota['errno'] == -6:
+            print('out of date')
+
+
 def get_user_uk(cookie, tokens):
     '获取用户的uk'
     url = 'http://yun.baidu.com'
@@ -59,7 +73,7 @@ def get_user_uk(cookie, tokens):
     req = requests.get(url, cookies=cookie, headers=headers_merged)
     if req:
         content = req.text
-        match = re.findall('/share/home\?uk=(\d+)" target=', content)
+        match = re.findall('\"uk\":(\d+)', content)
         if len(match) == 1:
             return match[0]
         else:
